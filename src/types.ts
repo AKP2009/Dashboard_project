@@ -45,6 +45,15 @@ export interface Receipt {
   date: string
 }
 
+export interface MaterialReceipt {
+  id: string
+  materialId: string
+  fileName: string
+  amount: number
+  date: string
+  url?: string
+}
+
 export interface TimeEntry {
   id: string
   projectId: string

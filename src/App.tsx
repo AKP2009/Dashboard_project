@@ -5,6 +5,7 @@ import {
   formatCurrency,
   manualExpenses as initialManualExpenses,
   materialUsage as initialMaterialUsage,
+  materialReceipts as initialMaterialReceipts,
   materials as initialMaterials,
   payments as initialPayments,
   projects as initialProjects,
@@ -16,6 +17,7 @@ import {
 import type {
   MaterialUsage,
   ManualExpense,
+  MaterialReceipt,
   Payment,
   Project,
   Task,
@@ -41,6 +43,7 @@ function App() {
   const [activeWorkerId, setActiveWorkerId] = useState(initialWorkers[0]?.id ?? '')
   const [checkedIn, setCheckedIn] = useState(false)
   const [checkLog, setCheckLog] = useState<{ id: string; workerId: string; action: 'in' | 'out'; time: string }[]>([])
+  const [navOpen, setNavOpen] = useState(false)
 
   const [projectsState] = useState<Project[]>(initialProjects)
   const [workersState] = useState<Worker[]>(initialWorkers)
@@ -49,6 +52,7 @@ function App() {
   const [timeEntriesState, setTimeEntriesState] = useState<TimeEntry[]>(initialTimeEntries)
   const [manualExpensesState, setManualExpensesState] = useState<ManualExpense[]>(initialManualExpenses)
   const [receiptsState, setReceiptsState] = useState(initialReceipts)
+  const [materialReceiptsState, setMaterialReceiptsState] = useState<MaterialReceipt[]>(initialMaterialReceipts)
   const [paymentsState, setPaymentsState] = useState<Payment[]>(initialPayments)
   const [tasksState, setTasksState] = useState<Task[]>(initialTasks)
 
@@ -250,8 +254,61 @@ function App() {
     )
   }
 
+  const MaterialReceiptForm = () => {
+    const [receiptMaterial, setReceiptMaterial] = useState(materialsState[0]?.id ?? '')
+    const [receiptAmount, setReceiptAmount] = useState('')
+    const [receiptFile, setReceiptFile] = useState<File | null>(null)
+
+    const addMaterialReceipt = (e: React.FormEvent) => {
+      e.preventDefault()
+      const amount = parseFloat(receiptAmount)
+      if (!receiptMaterial || !receiptFile || Number.isNaN(amount) || amount <= 0) return
+      const url = URL.createObjectURL(receiptFile)
+      const newRec: MaterialReceipt = {
+        id: makeId('mrec'),
+        materialId: receiptMaterial,
+        fileName: receiptFile.name,
+        amount,
+        date: new Date().toISOString().slice(0, 10),
+        url,
+      }
+      setMaterialReceiptsState((prev) => [newRec, ...prev])
+      setReceiptAmount('')
+      setReceiptFile(null)
+    }
+
+    return (
+      <form className="inline-form" onSubmit={addMaterialReceipt}>
+        <select className="input" value={receiptMaterial} onChange={(e) => setReceiptMaterial(e.target.value)}>
+          {materialsState.map((m) => (
+            <option key={m.id} value={m.id}>
+              {m.name}
+            </option>
+          ))}
+        </select>
+        <input
+          className="input"
+          type="number"
+          min="0"
+          step="0.01"
+          placeholder="Amount"
+          value={receiptAmount}
+          onChange={(e) => setReceiptAmount(e.target.value)}
+        />
+        <input
+          className="input"
+          type="file"
+          accept="image/*,application/pdf"
+          onChange={(e) => setReceiptFile(e.target.files?.[0] ?? null)}
+        />
+        <button className="ghost" type="submit">Upload</button>
+      </form>
+    )
+  }
+
   const switchMode = (mode: 'admin' | 'worker') => {
     setViewMode(mode)
+    setNavOpen(false)
     if (mode === 'worker') {
       navigate('/worker')
     } else if (location.pathname === '/worker') {
@@ -910,6 +967,36 @@ function App() {
           </div>
         ))}
       </div>
+
+      <div className="panel-body list">
+        <div className="panel-title" style={{ padding: '0 0 8px 0' }}>Add Material Receipt (local-only)</div>
+        <MaterialReceiptForm />
+      </div>
+
+      <div className="panel-body list">
+        <div className="panel-title" style={{ padding: '0 0 8px 0' }}>Recent Material Receipts</div>
+        {materialReceiptsState.length === 0 && <div className="list-row">No material receipts yet.</div>}
+        {materialReceiptsState.map((rec) => {
+          const material = materialsState.find((m) => m.id === rec.materialId)
+          return (
+            <div key={rec.id} className="list-row">
+              <div className="pill-avatar purple">RC</div>
+              <div className="list-meta">
+                <div className="list-title">{rec.fileName}</div>
+                <div className="list-sub">{material?.name ?? 'Material'} · {rec.date}</div>
+              </div>
+              <div className="list-value">
+                <span className="accent">{formatCurrency(rec.amount)}</span>
+                {rec.url ? (
+                  <a className="muted" href={rec.url} target="_blank" rel="noreferrer">Preview</a>
+                ) : (
+                  <span className="muted">Local only</span>
+                )}
+              </div>
+            </div>
+          )
+        })}
+      </div>
     </div>
   )
 
@@ -1002,7 +1089,7 @@ function App() {
 
   return (
     <div className="app-shell">
-      <aside className="sidebar">
+      <aside className={`sidebar ${navOpen ? 'nav-open' : ''}`}>
         <div className="brand">
           <div className="brand-mark">CP</div>
           <div>
@@ -1010,6 +1097,14 @@ function App() {
             <div className="brand-sub">{viewMode === 'admin' ? 'Admin Portal' : 'Worker Portal'}</div>
           </div>
         </div>
+        <button
+          type="button"
+          className="nav-toggle"
+          aria-expanded={navOpen}
+          onClick={() => setNavOpen((open) => !open)}
+        >
+          {navOpen ? 'Close Menu' : 'Menu'}
+        </button>
         <nav className="nav">
           {(viewMode === 'admin' ? navLinks : workerLinks).map((link) => (
             <NavLink
@@ -1017,6 +1112,7 @@ function App() {
               to={link.path}
               end={link.path === '/'}
               className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+              onClick={() => setNavOpen(false)}
             >
               <span className="nav-dot" />
               {link.label}

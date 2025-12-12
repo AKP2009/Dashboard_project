@@ -1,5 +1,6 @@
 import type {
   Material,
+  MaterialReceipt,
   MaterialUsage,
   ManualExpense,
   Payment,
@@ -65,6 +66,7 @@ export const manualExpenses: ManualExpense[] = [
 export const receipts: Receipt[] = [
   { id: 'r1', projectId: 'p1', fileName: 'lumber-receipt.pdf', amount: 450, date: '2025-12-10' },
 ]
+export const materialReceipts: MaterialReceipt[] = []
 export const tasks: Task[] = [
   { id: 'task1', projectId: 'p1', title: 'Install cabinets', assigneeIds: ['w1'], status: 'in_progress', dueDate: '2025-12-14' },
   { id: 'task2', projectId: 'p1', title: 'Paint walls', assigneeIds: ['w2'], status: 'not_started', dueDate: '2025-12-15' },

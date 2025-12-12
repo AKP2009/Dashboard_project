@@ -1,6 +1,6 @@
 .app-shell {
   display: grid;
-  grid-template-columns: 260px 1fr;
+  grid-template-columns: 260px minmax(0, 1fr);
   min-height: 100vh;
   color: #0f172a;
 }
@@ -23,6 +23,20 @@
   display: flex;
   align-items: center;
   gap: 12px;
+}
+
+.nav-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.08);
+  color: #e5e7eb;
+  font-weight: 700;
+  cursor: pointer;
 }
 
 .brand-mark {
@@ -185,6 +199,10 @@
 .content {
   padding: 32px 34px 48px;
   background: linear-gradient(180deg, rgba(237, 242, 255, 0.8) 0%, #f8fafc 100%);
+}
+
+.content.narrow {
+  padding: 22px 20px 32px;
 }
 
 .page-header {
@@ -416,6 +434,11 @@
   font-weight: 800;
 }
 
+.accent {
+  color: #7c3aed;
+  font-weight: 800;
+}
+
 .button-stack {
   display: flex;
   gap: 8px;
@@ -445,6 +468,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
 .input {
@@ -452,6 +476,7 @@
   border-radius: 8px;
   padding: 8px 10px;
   font-size: 13px;
+  flex: 1 1 140px;
 }
 
 .input:focus {
@@ -545,19 +570,34 @@
   }
 
   .sidebar {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
+    position: static;
+    height: auto;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
     padding: 18px 20px;
   }
 
   .nav {
     flex-direction: row;
     flex-wrap: wrap;
+    gap: 6px;
+    width: 100%;
   }
 
   .profile-card {
     margin-top: 0;
+    width: 100%;
+  }
+
+  .content {
+    padding: 24px 20px 34px;
+  }
+
+  .nav-toggle {
+    display: inline-flex;
+    width: 100%;
+    justify-content: center;
   }
 }
 
@@ -565,6 +605,32 @@
   .page-header {
     flex-direction: column;
     align-items: flex-start;
+    display: none;
+  }
+
+  .sidebar {
+    padding: 16px;
+    gap: 12px;
+  }
+
+  .sidebar.nav-open .nav,
+  .sidebar.nav-open .profile-card {
+    display: flex;
+  }
+
+  .brand {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .nav {
+    overflow-x: auto;
+    padding-bottom: 4px;
+    display: none;
+  }
+
+  .sidebar.nav-open .nav {
+    display: flex;
   }
 
   .table-head,
@@ -577,5 +643,14 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
+  }
+
+  .list-row {
+    grid-template-columns: 1fr;
+    align-items: flex-start;
+  }
+
+  .content {
+    padding: 18px 14px 26px;
   }
 }
