@@ -52,8 +52,6 @@ function App() {
   const [paymentsState, setPaymentsState] = useState<Payment[]>(initialPayments)
   const [tasksState, setTasksState] = useState<Task[]>(initialTasks)
 
-  const currentWorker = workersState.find((w) => w.id === activeWorkerId)
-
   const makeId = (prefix: string) => `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`
 
   const projectLaborCost = (projectId: string) => {
